@@ -1,4 +1,4 @@
-import { Bill, Client, Deposit, Product, User } from './db';
+import { Bill, Client, Deposit, Product, User } from './db/interfaces';
 
 export class ApiManager {
   public key: string;

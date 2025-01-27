@@ -32,7 +32,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { Lang } from "../components/Lang";
+import { getTranslation, Lang } from "../components/Lang";
 import { useAuth } from "../contexts/AuthContext";
 import type { Bill, Client, Deposit } from "../lib/db/interfaces";
 
@@ -50,9 +50,9 @@ export default function StatisticsPage() {
       setLoading(true);
       try {
         const [clientsData, billsData, depositsData] = await Promise.all([
-          api.getClients(key),
-          api.getBills(key),
-          api.getDeposits(key),
+          api.getClients(),
+          api.getBills(),
+          api.getDeposits(),
         ]);
         setClients(clientsData);
         setBills(billsData);
@@ -60,7 +60,7 @@ export default function StatisticsPage() {
         setLoading(false);
       } catch (err) {
         console.error("Error fetching data:", err);
-        setError(<Lang text="errorFetchingData" />);
+        setError(getTranslation("errorFetchingData"));
         setLoading(false);
       }
     };
