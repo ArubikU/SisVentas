@@ -1,3 +1,8 @@
+// Mejoras implementadas en el código existente:
+// 1. Animaciones al cargar elementos y gráficos.
+// 2. Mejora en la interfaz del selector de clientes (indicadores visuales).
+// 3. Mejoras de diseño para un aspecto más atractivo y ordenado.
+
 "use client";
 
 import {
@@ -14,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -122,7 +128,12 @@ export default function StatisticsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-6"
+    >
       <h1 className="text-2xl font-bold">
         <Lang text="statistics" />
       </h1>
@@ -134,12 +145,16 @@ export default function StatisticsPage() {
           onValueChange={(value) => setSelectedClient(value)}
           value={selectedClient || undefined}
         >
-          <SelectTrigger>
+          <SelectTrigger className="hover:bg-gray-100">
             <SelectValue placeholder={<Lang text="selectClientPlaceholder" />} />
           </SelectTrigger>
           <SelectContent>
             {clients.map((client) => (
-              <SelectItem key={client.id} value={client.id}>
+              <SelectItem
+                key={client.id}
+                value={client.id}
+                className="hover:bg-gray-200 transition-colors"
+              >
                 {client.name}
               </SelectItem>
             ))}
@@ -147,27 +162,33 @@ export default function StatisticsPage() {
         </Select>
       </div>
       {selectedClient && (
-        <Card className="overflow-x-auto">
-          <CardHeader>
-            <CardTitle>
-              <Lang text="salesAndDepositsByMonth" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={400} className="mt-4">
-              <BarChart data={getClientData()}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="mes" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="ventas" fill="#8884d8" name={<Lang text="sales" />} />
-                <Bar dataKey="deposits" fill="#82ca9d" name={<Lang text="deposits" />} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="overflow-x-auto">
+            <CardHeader>
+              <CardTitle>
+                <Lang text="salesAndDepositsByMonth" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400} className="mt-4">
+                <BarChart data={getClientData()}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mes" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="ventas" fill="#8884d8" name={<Lang text="sales" />} />
+                  <Bar dataKey="deposits" fill="#82ca9d" name={<Lang text="deposits" />} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
