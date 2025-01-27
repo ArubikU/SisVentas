@@ -20,6 +20,3 @@ switch (dbType) {
 }
 
 export { implementation }
-
-
-console.debug("Environment Variables:", process.env)
