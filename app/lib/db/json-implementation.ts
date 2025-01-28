@@ -41,6 +41,9 @@ export class JSONImplementation implements DatabaseInterface {
       ]
     }
   }
+  changuePassword(key: string, targetUser: string, newPassword: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 
   private generateKey(user: User): string {
     const tempHash = hash256(user.email.toLowerCase() + user.password);
@@ -52,7 +55,7 @@ export class JSONImplementation implements DatabaseInterface {
     for (const user of this.data.users) {
       const userKey = this.generateKey(user);
       if (userKey === key) {
-        return { userName: user.email, tier: user.tier };
+        return { email: user.email, tier: user.tier };
       }
     }
     return null;

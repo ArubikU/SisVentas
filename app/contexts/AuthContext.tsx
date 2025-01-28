@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthenticatedUserData  | null>(null)
   const [key, setKey] = useState('')
   const { toast } = useToast()
-  const [api, setApi] = useState<ApiManager>(useApi(''))
+  const [api, setApi] = useState<ApiManager>(useApi("") as ApiManager)
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
@@ -28,12 +28,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (storedUser && storedKey) {
       setUser(JSON.parse(storedUser))
       setKey(storedKey)
-      setApi(useApi(storedKey))
+      setApi(useApi(storedKey)as ApiManager)
     }
   }, [])
 
   useEffect(() => {
-    setApi(useApi(key))
+    setApi(useApi(key)as ApiManager)
   }
   ,[key])
 
@@ -83,12 +83,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setKey(requestData.key)
       setUser(requestData.data)
       setApi(useApi(requestData.key))
-      try{
-       
-      await checkClientsConDeudas() 
-      }catch (error){
-        
-      }
+      //try{
+      // 
+      //await checkClientsConDeudas() 
+      //}catch (error){
+      //  
+      //}
       return true
     }
     return false
@@ -103,18 +103,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('client-key')
   }
 
-  const changePassword = async (oldPassword: string, newPassword: string) => {
+  const changePassword = async (newPassword: string) => {
     if (!user) return false
-
-    // En una aplicación real, esto se haría mediante una llamada a la API
-    const users = await api.getUsers()
-    const currentUser = users.find(u => u.id === user.id && u.password === oldPassword)
-
-    if (currentUser) {
-      currentUser.password = newPassword
-      await api.updateUser(currentUser)
-      return true
-    }
+    
     return false
   }
 

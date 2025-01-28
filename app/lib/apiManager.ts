@@ -44,6 +44,10 @@ export class ApiManager {
     return this.fetchWithAuth(`users/${user.id}`, 'PUT', user);
   }
 
+  async isPassword(user: User,password: string) {
+    return this.fetchWithAuth(`login`, 'POST', {password: password, email: user.email});
+  } 
+
   async deleteUser(userId: string) {
     return this.fetchWithAuth(`users/${userId}`, 'DELETE');
   }
@@ -68,6 +72,14 @@ export class ApiManager {
   async getBillsByClientId(clientid: string) {
     return this.fetchWithAuth(`bills/cliente/${clientid}`);
   }
+
+  async changePassword(targetUser: string, newPassword: string) {
+    return this.fetchWithAuth('users/password', 'POST', {
+      targetUser,
+      newPassword,
+    });
+  }
+  
 
   // Deposits
   async getDeposits() {

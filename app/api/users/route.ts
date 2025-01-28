@@ -39,7 +39,7 @@ export async function PUT(request: Request) {
   }
 
   try {
-    await implementation.createUser(key, user);
+    await implementation.updateUser(key, user);
     return NextResponse.json({ message: 'User created successfully' });
   } catch (error) {
     console.error('Error in users route:', error);

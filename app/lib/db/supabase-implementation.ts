@@ -16,6 +16,27 @@ export class SupabaseImplementation implements DatabaseInterface {
     this.supabase = createClient(supabaseUrl, supabaseKey)
     this.ensureAdminUser()
   }
+  async changuePassword(key: string, targetUser: string, newPassword: string): Promise<void> {
+    const isAdmin = await this.checkAuthorization(key, "administrator");
+    const isSameUser = key === targetUser;
+
+    if (!isAdmin && !isSameUser) {
+      throw new Error("Unauthorized");
+    }
+
+    const { error } = await this.supabase
+      .from("users")
+      .update({ password: newPassword })
+      .eq("id", targetUser);
+
+    if (error) {
+      console.error("Error updating password:", error);
+      throw new Error("Failed to change password");
+    }
+
+    console.log("Password updated successfully for user", targetUser);
+  }
+
 
   private async ensureAdminUser(): Promise<void> {
     try {
@@ -63,7 +84,7 @@ export class SupabaseImplementation implements DatabaseInterface {
     if (error || !data) return null
 
     return {
-      userName: data.email,
+      email: data.email,
       tier: data.tier,
     }
   }
@@ -75,8 +96,6 @@ export class SupabaseImplementation implements DatabaseInterface {
       .eq("email", email)
       .eq("password", password)
       .single()
-      console.log(error)
-    console.log(data)
     if (error || !data) return null
     return data.id
   }
@@ -103,9 +122,9 @@ export class SupabaseImplementation implements DatabaseInterface {
 
   async getUsers(key?: string): Promise<User[]> {
     if (key && !(await this.checkAuthorization(key, "administrator"))) throw new Error("Unauthorized")
-    const { data, error } = await this.supabase.from("users").select("*")
+    const { data, error } = await this.supabase.from("users").select(key ? "*" : "id, email, tier")
     if (error) throw error
-    return data
+    return data as unknown as User[]
   }
 
   async createUser(key: string, user: User): Promise<void> {
@@ -115,8 +134,20 @@ export class SupabaseImplementation implements DatabaseInterface {
   }
 
   async updateUser(key: string, user: User): Promise<void> {
-    if (!(await this.checkAuthorization(key, "administrator"))) throw new Error("Unauthorized")
-    const { error } = await this.supabase.from("users").update(user).eq("id", user.id)
+    const isAdmin = await this.checkAuthorization(key, "administrator")
+    const isSameUser = key === user.id
+
+    if (!isAdmin && !isSameUser) throw new Error("Unauthorized")
+    
+    const { error } = await this.supabase
+      .from("users")
+      .update({
+        email: user.email,
+        tier: isAdmin ? user.tier : undefined, // Only admin can update tier
+        password: user.password,
+      })
+      .eq("id", user.id)
+
     if (error) throw error
   }
 

@@ -9,10 +9,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { useToast } from "@/components/ui/use-toast"
-import { BarChart2, Globe, Menu, Moon, Settings, Sun, User, Users } from "lucide-react"
+import { BarChart2, Globe, Menu, Moon, Sun, User, Users } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
 import { useAuth } from "../contexts/AuthContext"
 import { useTheme } from "../contexts/ThemeContext"
 import { Lang } from "./Lang"
@@ -24,9 +35,12 @@ const roleColors = {
 }
 
 export default function Navbar() {
-  const { user, logout } = useAuth()
+  const { user, logout , api, changePassword} = useAuth()
   const { theme, toggleTheme, language, setLanguage } = useTheme()
   const { toast } = useToast()
+  const [isPasswordChangeOpen, setIsPasswordChangeOpen] = useState(false)
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
 
   const handleLogout = () => {
     logout()
@@ -34,6 +48,34 @@ export default function Navbar() {
       title: <Lang text="logoutSuccessful" />,
       description: <Lang text="logoutSuccessfulMessage" />,
     })
+  }
+
+  const handlePasswordChange = async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: <Lang text="passwordMismatch" />,
+        description: <Lang text="passwordMismatchMessage" />,
+        variant: "destructive",
+      })
+      return
+    }
+    try {
+      api.changePassword("self", newPassword)
+      toast({
+        title: <Lang text="passwordChangeSuccessful" />,
+        description: <Lang text="passwordChangeSuccessfulMessage" />,
+      })
+      setIsPasswordChangeOpen(false)
+      setNewPassword("")
+      setConfirmPassword("")
+    } catch (error) {
+      toast({
+        title: <Lang text="passwordChangeError" />,
+        description: <Lang text="passwordChangeErrorMessage" />,
+        variant: "destructive",
+      })
+    }
   }
 
   const NavLinks = () => (
@@ -106,20 +148,15 @@ export default function Navbar() {
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.userName}</p>
+                      <p className="text-sm font-medium leading-none">{user.email}</p>
                       <p className={`text-xs leading-none ${roleColors[user.tier]}`}>
                         <Lang text={user.tier as TranslationKey} />
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <Settings className="mr-2 h-4 w-4" />
-                    <Lang text="settings" />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    <Lang text="profile" />
+                  <DropdownMenuItem onClick={() => setIsPasswordChangeOpen(true)}>
+                    <Lang text="changePassword" />
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     <Lang text="logout" />
@@ -158,11 +195,14 @@ export default function Navbar() {
                   {user ? (
                     <div className="space-y-4">
                       <p className="text-foreground">
-                        <Lang text="welcome" />, {user.userName}
+                        <Lang text="welcome" />, {user.email}
                       </p>
                       <p className={`text-xs leading-none ${roleColors[user.tier]}`}>
                         <Lang text={user.tier as TranslationKey} />
                       </p>
+                      <Button onClick={() => setIsPasswordChangeOpen(true)} className="w-full">
+                        <Lang text="changePassword" />
+                      </Button>
                       <Button onClick={handleLogout} className="w-full">
                         <Lang text="logout" />
                       </Button>
@@ -180,6 +220,49 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+      <Sheet open={isPasswordChangeOpen} onOpenChange={setIsPasswordChangeOpen}>
+        <SheetContent>
+          <SheetHeader>
+            <SheetTitle>
+              <Lang text="changePassword" />
+            </SheetTitle>
+            <SheetDescription>
+              <Lang text="changePasswordDescription" />
+            </SheetDescription>
+          </SheetHeader>
+          <form onSubmit={handlePasswordChange} className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="new-password">
+                <Lang text="newPassword" />
+              </Label>
+              <Input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">
+                <Lang text="confirmPassword" />
+              </Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+            <SheetFooter>
+              <Button type="submit">
+                <Lang text="changePassword" />
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
     </nav>
   )
 }

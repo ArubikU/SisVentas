@@ -29,6 +29,9 @@ export class MySQLImplementation implements DatabaseInterface {
     this.ensureAdminUser();
     this.debug();
   }
+  changuePassword(key: string, targetUser: string, newPassword: string): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 
   async debug(): Promise<void> {
     const tables = ['users', 'bills', 'deposits', 'clients', 'products'];
@@ -70,7 +73,7 @@ export class MySQLImplementation implements DatabaseInterface {
 
   async getData(key: string): Promise<AuthenticatedUserData | null> {
     const [user] = await this.query('SELECT email, tier FROM users WHERE api_key = ?', [key])
-    return user ? { userName: user.email, tier: user.tier } : null
+    return user ? { email: user.email, tier: user.tier } : null
   }
 
   async login(email: string, password: string): Promise<string | null> {

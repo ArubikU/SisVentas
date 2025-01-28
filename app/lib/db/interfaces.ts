@@ -4,7 +4,7 @@ export interface DatabaseInterface {
   // Métodos de autenticación
   isValidUser(key: string): Promise<boolean>
   getData(key: string): Promise<AuthenticatedUserData | null>
-  
+  changuePassword(key: string, targetUser: string, newPassword: string): Promise<void>
   // Métodos existentes modificados para requerir clave
   getUsers(key?: string): Promise<User[]>
   createUser(key: string, user: User): Promise<void>
@@ -86,7 +86,7 @@ export interface Product {
 }
 
 export interface AuthenticatedUserData {
-  userName: string
+  email: string
   tier: 'basic' | 'advanced' | 'administrator'
 }
 
