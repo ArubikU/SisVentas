@@ -7,7 +7,7 @@ const dbType = process.env.DB_TYPE || "json"
 
 let implementation: DatabaseInterface
 
-switch (dbType) {
+switch (dbType.toLowerCase()) {
   case "mysql":
     implementation = new MySQLImplementation()
     break
