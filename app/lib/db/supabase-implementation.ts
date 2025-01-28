@@ -9,6 +9,7 @@ export class SupabaseImplementation implements DatabaseInterface {
     const supabaseKey = process.env.SUPABASE_KEY
 
     if (!supabaseUrl || !supabaseKey) {
+      console.log("Supabase URL and Key must be provided in environment variables")
       throw new Error("Supabase URL and Key must be provided in environment variables")
     }
 
