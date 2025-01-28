@@ -75,7 +75,8 @@ export class SupabaseImplementation implements DatabaseInterface {
       .eq("email", email)
       .eq("password", password)
       .single()
-
+      console.log(error)
+    console.log(data)
     if (error || !data) return null
     return data.id
   }
