@@ -60,7 +60,7 @@ A modern, full-stack sales management system built with Next.js 15, React 18, an
 
    Create a `.env.local` file in the root directory:
    ```env
-   # Database Type (json, mysql, or supabase)
+   # Database Type - Valid values: json, mysql, supabase
    DB_TYPE=json
    
    # MySQL Configuration (if using MySQL)
